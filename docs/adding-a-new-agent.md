@@ -4,7 +4,17 @@ The container can run any agent harness under `agents/<agent-name>/`,
 selected at run time via the `AGENT_NAME` environment variable
 (default: `code-review`). Adding a new agent never requires touching
 `agents/code-review/`, `bin/`, `lib/`, or `docker/Dockerfile` beyond the
-one line that copies `agents/` into the image (already generic).
+one line that copies `agents/` into the image (already generic) — **as
+long as the new agent fits the review contract**: a PR diff in, a single
+structured verdict out. `coder-agent` (`specs/002-coder-agent/`) is the
+deliberate, called-out exception: its input (an issue number, not a PR),
+required credential scope (write, not read), and output (a branch + PR
+across three terminal states, not one comment) don't fit that contract, so
+it necessarily adds its own dispatch path in `bin/entrypoint.sh`,
+coder-specific functions in `lib/`, and the `git` package in
+`docker/Dockerfile` — see `specs/002-coder-agent/plan.md`'s Complexity
+Tracking for the full rationale. Everything below still applies to any
+agent that *does* fit the review contract.
 
 ## Steps
 
