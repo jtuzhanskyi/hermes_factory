@@ -1,0 +1,10 @@
+.env
+tests/
+specs/
+.specify/
+.claude/
+.git/
+.gitignore
+*.md
+!agents/**/*.md
+docs/
