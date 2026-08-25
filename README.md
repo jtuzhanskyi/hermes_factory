@@ -24,10 +24,42 @@ docker run --rm \
   pr-review-agent:local
 ```
 
+The reviewer model defaults to Claude Haiku 4.5 (`lib/run-agent.sh`); override
+it by passing `-e RUN_AGENT_MODEL="..."`.
+
 See `specs/001-pr-review-agent/contracts/container-input.md` for the full
 input contract, `specs/001-pr-review-agent/contracts/exit-codes.md` for
 failure modes, and `specs/001-pr-review-agent/quickstart.md` for a full
 manual validation walkthrough.
+
+### Local test run against a real PR
+
+Rebuild the image after any change under `bin/`, `lib/`, `agents/`, or
+`docker/` — Docker won't pick up source edits otherwise:
+
+```sh
+docker build -t pr-review-agent:local -f docker/Dockerfile .
+```
+
+Local credentials live in the repo's `.env` (not committed) as
+`GITHUB_TOKEN` and `ANTHROPIC_TOKEN`. Note the container expects
+`ANTHROPIC_API_KEY`, not `ANTHROPIC_TOKEN` — map it explicitly when sourcing
+`.env`. For the GitHub token, prefer a fresh `gh auth token` over the one in
+`.env` if you're already logged in via `gh`:
+
+```sh
+set -a; source .env; set +a
+
+docker run --rm \
+  -e GITHUB_REPOSITORY="owner/repo" \
+  -e PR_NUMBER="4" \
+  -e GITHUB_TOKEN="$(gh auth token)" \
+  -e ANTHROPIC_API_KEY="${ANTHROPIC_TOKEN}" \
+  pr-review-agent:local
+```
+
+This posts a real comment to the target PR — only point it at a PR you're
+prepared to have commented on.
 
 ## Layout
 
