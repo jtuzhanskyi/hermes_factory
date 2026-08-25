@@ -2,11 +2,13 @@
 # Invokes `claude -p` with the selected agent's directory as the working
 # directory and a task prompt containing the PR diff/metadata. Enforces a
 # run timeout; the caller exits EXIT_REVIEW_FAILED (30) on timeout or crash.
+# Model defaults to Claude Haiku 4.5; override via RUN_AGENT_MODEL.
 #
 # Emits a structured Review Outcome (JSON: {"verdict": ..., "findings": [...]})
 # to stdout on success.
 
 RUN_AGENT_TIMEOUT_SECONDS="${RUN_AGENT_TIMEOUT_SECONDS:-300}"
+RUN_AGENT_MODEL="${RUN_AGENT_MODEL:-claude-haiku-4-5-20251001}"
 
 run_agent() {
   local agent_dir="$1"
@@ -20,7 +22,7 @@ run_agent() {
   local output
   local rc
 
-  output="$(cd "${agent_dir}" && timeout "${RUN_AGENT_TIMEOUT_SECONDS}" claude -p "${prompt}" 2>&1)"
+  output="$(cd "${agent_dir}" && timeout "${RUN_AGENT_TIMEOUT_SECONDS}" claude -p --model "${RUN_AGENT_MODEL}" "${prompt}" 2>&1)"
   rc=$?
 
   if (( rc != 0 )); then
