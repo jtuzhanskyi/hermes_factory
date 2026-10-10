@@ -37,6 +37,7 @@ teardown() {
 @test "validate_coder_input fails on missing tokens" {
   export GITHUB_REPOSITORY="my-org/my-repo"
   export ISSUE_NUMBER="5"
+  unset GITHUB_TOKEN ANTHROPIC_API_KEY
 
   run validate_coder_input
   [ "$status" -eq 1 ]
